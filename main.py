@@ -105,8 +105,7 @@ class MyGame(arcade.Window):
         # Move the player with the physics engine
         self.physics_engine.update()
 
-        if self.player_sprite.top > SCREEN_HEIGHT:
-            self.player_sprite.top = SCREEN_HEIGHT
+        self.near_edge()
         
         #self.death()
 
