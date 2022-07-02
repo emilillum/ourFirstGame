@@ -46,6 +46,8 @@ class MyGame(arcade.Window):
         self.scene.add_sprite_list("Tubes")
         self.scene.add_sprite_list("Base")
 
+        self.collisions = [self.scene["Tubes"], self.scene["Base"]]
+
         # The bird is defined in flappybird.py, imported at the top of the file and called here
         self.player_sprite = flappybird.Bird()
 
@@ -56,7 +58,7 @@ class MyGame(arcade.Window):
         self.scene.add_sprite("Base", self.base)
 
         self.physics_engine = arcade.PhysicsEnginePlatformer(
-            self.player_sprite, gravity_constant=GRAVITY, walls=self.scene["Tubes", "Base"]
+            self.player_sprite, gravity_constant=GRAVITY, walls=self.collisions
         )
 
     def draw_background(self):
@@ -80,7 +82,7 @@ class MyGame(arcade.Window):
         if key == arcade.key.SPACE:
             self.player_sprite.change_y = PLAYER_JUMP_SPEED
 
-'''
+    '''
         if dead == False:
             if key == arcade.key.SPACE:
                 self.player_sprite.change_y = PLAYER_JUMP_SPEED
@@ -91,7 +93,7 @@ class MyGame(arcade.Window):
             self.player_sprite.bottom = self.base.height
             dead = True
         return dead
-'''
+    '''
     
     
     def near_edge(self):
