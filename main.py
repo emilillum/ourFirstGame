@@ -1,6 +1,8 @@
 import arcade
 import flappybird
 import base
+import pipe
+from random import randint
 
 # Constants
 SCREEN_WIDTH = 280
@@ -54,12 +56,43 @@ class MyGame(arcade.Window):
         # Base set up
         self.base = base.Base(base_x, base_y)
 
+        self.bottom_pipe1, self.top_pipe1 = self.place_pipes(0)
+        self.bottom_pipe2, self.top_pipe2 = self.place_pipes(200)
+        self.bottom_pipe3, self.top_pipe3 = self.place_pipes(400)
+        self.bottom_pipe4, self.top_pipe4 = self.place_pipes(600)
+        self.bottom_pipe5, self.top_pipe5 = self.place_pipes(800)
+        self.bottom_pipe6, self.top_pipe6 = self.place_pipes(1000)
+
+
         self.scene.add_sprite("Player", self.player_sprite)
         self.scene.add_sprite("Base", self.base)
+        self.scene.add_sprite("Tubes", self.top_pipe1)
+        self.scene.add_sprite("Tubes", self.bottom_pipe1)
+        self.scene.add_sprite("Tubes", self.top_pipe2)
+        self.scene.add_sprite("Tubes", self.bottom_pipe2)
+        self.scene.add_sprite("Tubes", self.top_pipe3)
+        self.scene.add_sprite("Tubes", self.bottom_pipe3)
+        self.scene.add_sprite("Tubes", self.top_pipe4)
+        self.scene.add_sprite("Tubes", self.bottom_pipe4)
+        self.scene.add_sprite("Tubes", self.top_pipe5)
+        self.scene.add_sprite("Tubes", self.bottom_pipe5)
+        self.scene.add_sprite("Tubes", self.top_pipe6)
+        self.scene.add_sprite("Tubes", self.bottom_pipe6)
+
 
         self.physics_engine = arcade.PhysicsEnginePlatformer(
             self.player_sprite, gravity_constant=GRAVITY, walls=self.collisions
         )
+    
+    def place_pipes(self, x_offset):
+        y_offset = randint(0, 240)
+        bottom_pipe = pipe.Pipes(200 + x_offset, -5 + y_offset)
+        top_pipe = pipe.Pipes(200 + x_offset, 420 + y_offset, flipped=True)
+        return bottom_pipe, top_pipe
+
+    
+
+        
 
     def draw_background(self):
         """
