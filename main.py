@@ -39,23 +39,29 @@ class MyGame(arcade.Window):
         """Set up the game here. Call this function to restart the game."""
 
         self.background = arcade.load_texture("background-day.png")
+        self.background_2 = arcade.load_texture("background-day.png")
 
         self.scene = arcade.Scene()
         # Sprite lists are created
         self.scene.add_sprite_list("Player")
         self.scene.add_sprite_list("Tubes")
         self.scene.add_sprite_list("Base")
+        self.scene.add_sprite_list("background")
 
         self.collisions = [self.scene["Tubes"], self.scene["Base"]]
 
         # The bird is defined in flappybird.py, imported at the top of the file and called here
         self.player_sprite = flappybird.Bird()
 
-        # Base set up
+        # the base is definded in base.py, imported at the top of the file and called here
         self.base = base.Base(base_x, base_y)
+        self.base_2 = base.Base(base_x + 335, base_y)
+        self.base_3 = base.Base(base_x - 335, base_y)
 
         self.scene.add_sprite("Player", self.player_sprite)
         self.scene.add_sprite("Base", self.base)
+        self.scene.add_sprite("Base", self.base_2)
+        self.scene.add_sprite("Base", self.base_3)
 
         self.physics_engine = arcade.PhysicsEnginePlatformer(
             self.player_sprite, gravity_constant=GRAVITY, walls=self.collisions
@@ -86,7 +92,7 @@ class MyGame(arcade.Window):
         if dead == False:
             if key == arcade.key.SPACE:
                 self.player_sprite.change_y = PLAYER_JUMP_SPEED
-    
+
     def death(self):
         dead = False
         if self.player_sprite.bottom < self.base.height:
@@ -94,8 +100,20 @@ class MyGame(arcade.Window):
             dead = True
         return dead
     '''
-    
-    
+
+    def check_base_for_relocating(self, position_x):
+        if position_x < -335:
+            position_x = base_x + 335
+        return position_x
+
+    def move_base(self):
+        self.base.center_x = self.base.center_x - 2
+        self.base_2.center_x = self.base_2.center_x - 2
+        self.base_3.center_x = self.base_3.center_x - 2
+        self.base.center_x = self.check_base_for_relocating(self.base.center_x)
+        self.base_2.center_x = self.check_base_for_relocating(self.base_2.center_x)
+        self.base_3.center_x = self.check_base_for_relocating(self.base_3.center_x)
+
     def near_edge(self):
         if self.player_sprite.top > SCREEN_HEIGHT:
             self.player_sprite.top = SCREEN_HEIGHT
@@ -108,7 +126,8 @@ class MyGame(arcade.Window):
         self.physics_engine.update()
 
         self.near_edge()
-        
+        self.move_base()
+
         #self.death()
 
 
