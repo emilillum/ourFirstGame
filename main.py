@@ -17,7 +17,6 @@ PLAYER_JUMP_SPEED = 9
 base_x = SCREEN_WIDTH//2
 base_y = 40
 
-
 class MyGame(arcade.Window):
     """
     Main application class.
@@ -33,6 +32,9 @@ class MyGame(arcade.Window):
         self.player_sprite = None
 
         self.physics_engine = None
+
+        self.time = 0
+        self.handle_time = 0
 
         arcade.set_background_color(arcade.csscolor.CORNFLOWER_BLUE)
 
@@ -90,7 +92,7 @@ class MyGame(arcade.Window):
         self.physics_engine = arcade.PhysicsEnginePlatformer(
             self.player_sprite, gravity_constant=GRAVITY, walls=self.collisions
         )
-    
+
     def place_pipes(self, x_offset):
         """Places pipes with equal spacing"""
         y_offset = randint(0, 240)
@@ -109,7 +111,7 @@ class MyGame(arcade.Window):
 
     def on_draw(self):
         """Render the screen."""
-
+        arcade.start_render()
         self.clear()
         # Code to draw the screen goes here
         self.draw_background()
@@ -119,6 +121,15 @@ class MyGame(arcade.Window):
         """Called whenever a key is pressed."""
         if key == arcade.key.SPACE:
             self.player_sprite.change_y = PLAYER_JUMP_SPEED
+            self.player_sprite.texture = self.player_sprite.down_texture
+            self.handle_time = self.time
+
+    def handle_prite_animation(self):
+        if self.time > self.handle_time + 0.125:
+            self.player_sprite.texture = self.player_sprite.mid_texture
+        if self.time > self.handle_time +  0.25:
+            self.player_sprite.texture = self.player_sprite.up_texture
+
 
     def death(self):
         """Whenever the bird hits a tube or the base, it dies"""
@@ -129,7 +140,7 @@ class MyGame(arcade.Window):
         else:
             dead = False
         return dead
-    
+
     def check_base_for_relocating(self, position_x):
         if position_x < -335:
             position_x = base_x + 335
@@ -157,13 +168,13 @@ class MyGame(arcade.Window):
             self.bottom_pipe1, self.top_pipe1 = self.place_pipes(900)
             self.scene.add_sprite("Tubes", self.top_pipe1)
             self.scene.add_sprite("Tubes", self.bottom_pipe1)
-        
+
         if self.top_pipe2.center_x < -20:
             self.bottom_pipe2.kill(); self.top_pipe2.kill()
             self.bottom_pipe2, self.top_pipe2 = self.place_pipes(900)
             self.scene.add_sprite("Tubes", self.top_pipe2)
-            self.scene.add_sprite("Tubes", self.bottom_pipe2)        
-        
+            self.scene.add_sprite("Tubes", self.bottom_pipe2)
+
         if self.top_pipe3.center_x < -20:
             self.bottom_pipe3.kill(); self.top_pipe3.kill()
             self.bottom_pipe3, self.top_pipe3 = self.place_pipes(900)
@@ -181,7 +192,7 @@ class MyGame(arcade.Window):
             self.bottom_pipe5, self.top_pipe5 = self.place_pipes(900)
             self.scene.add_sprite("Tubes", self.top_pipe5)
             self.scene.add_sprite("Tubes", self.bottom_pipe5)
-        
+
         if self.top_pipe6.center_x < -20:
             self.bottom_pipe6.kill(); self.top_pipe6.kill()
             self.bottom_pipe6, self.top_pipe6 = self.place_pipes(900)
@@ -202,10 +213,14 @@ class MyGame(arcade.Window):
         self.near_edge()
         self.move_base()
         self.move_kill_and_make_pipes()
-        
+
+        self.time = self.time + delta_time
+        self.handle_prite_animation()
+
         dead = self.death()
         if dead == True:
             self.player_sprite.kill()
+            arcade.exit()
 
 
 def main():
