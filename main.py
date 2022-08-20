@@ -2,6 +2,7 @@ import arcade
 import flappybird
 import base
 import pipe
+import points
 from random import randint
 
 # Constants
@@ -16,6 +17,7 @@ GRAVITY = 0.7
 PLAYER_JUMP_SPEED = 9
 base_x = SCREEN_WIDTH//2
 base_y = 40
+score = 0
 
 
 class MyGame(arcade.Window):
@@ -34,6 +36,8 @@ class MyGame(arcade.Window):
 
         self.physics_engine = None
 
+        self.score = score
+
         arcade.set_background_color(arcade.csscolor.CORNFLOWER_BLUE)
 
 
@@ -49,6 +53,7 @@ class MyGame(arcade.Window):
         self.scene.add_sprite_list("Tubes")
         self.scene.add_sprite_list("Base")
         self.scene.add_sprite_list("background")
+        self.scene.add_sprite_list("Score")
 
         self.collisions = [self.scene["Tubes"], self.scene["Base"]]
 
@@ -68,11 +73,14 @@ class MyGame(arcade.Window):
         self.bottom_pipe5, self.top_pipe5 = self.place_pipes(800)
         self.bottom_pipe6, self.top_pipe6 = self.place_pipes(1000)
 
+        self.score = scoring.Score("0.png", 140, 40)
+
         # Sprites are added to the initial scene
         self.scene.add_sprite("Player", self.player_sprite)
         self.scene.add_sprite("Base", self.base)
         self.scene.add_sprite("Base", self.base_2)
         self.scene.add_sprite("Base", self.base_3)
+        self.scene.add_sprite("Score_board", self.score)
 
         self.scene.add_sprite("Tubes", self.top_pipe1)
         self.scene.add_sprite("Tubes", self.bottom_pipe1)
@@ -191,6 +199,35 @@ class MyGame(arcade.Window):
     def near_edge(self):
         if self.player_sprite.top > SCREEN_HEIGHT:
             self.player_sprite.top = SCREEN_HEIGHT
+    
+    def update_score(self, score, tubes):
+        for tube in tubes:
+            if tube.center_x == 50:
+                score += 0.5
+        score = int(score)
+        
+        return score
+    
+    def build_score_board(self):
+        """
+        Builds the score board with images. Basically how this work:
+        1. Calculate how many digits in the score.
+        2. Calculate width (Number of digits * width of each digit image width)
+        3. Calculate the "left" x position that makes all the images centered.
+        4. Just append every digit's image in the score board.
+        :return:
+        """
+        score_length = len(str(self.score))
+        score_width = 24 * score_length
+        left = (self.width - score_width) // 2
+        self.score_board = arcade.SpriteList()
+        for num in str(self.score):
+            image_source = "%s.png" % num
+            print(image_source)
+            self.score_board.append(arcade.Sprite(image_source, center_x=left + 12, center_y=450))
+            left += 24
+        self.scene.add_sprite_list("Score_board", self.score_board)
+
 
 
     def on_update(self, delta_time):
@@ -202,10 +239,16 @@ class MyGame(arcade.Window):
         self.near_edge()
         self.move_base()
         self.move_kill_and_make_pipes()
+        self.score = self.update_score(self.score, self.scene["Tubes"])
+        #print(self.score)
+        self.build_score_board()
+
+        #print(arcade.check_for_collision(self.player_sprite, self.bottom_pipe1))
         
         dead = self.death()
         if dead == True:
             self.player_sprite.kill()
+        
 
 
 def main():
